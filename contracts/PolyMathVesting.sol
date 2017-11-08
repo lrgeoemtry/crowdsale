@@ -16,7 +16,7 @@ contract PolyMathVesting {
   // https://github.com/brave-intl/basic-attention-token-crowdsale/blob/master/contracts/BATSafe.sol
   mapping (address => uint256) allocations;
 
-  uint256 vestingAmount = 1000000000000000000;
+  uint256 vestingAmount = 1000000000000000000; //18 zeros
 
   function PolyMathVesting(address _token, uint64 _releaseTime, address _vestingAddress) {
     require(_releaseTime > getBlockTimestamp());
@@ -35,8 +35,9 @@ contract PolyMathVesting {
 
     uint256 amount = token.balanceOf(this);
     require(amount > 0);
+    //should alos require amount >= however much poly this contract hold 
 
-    require(token.transfer(msg.sender, entitled));
+    require(token.transfer(msg.sender, entitled)); 
   }
 
    function getBlockTimestamp() internal constant returns (uint256) {

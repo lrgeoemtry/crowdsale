@@ -12,7 +12,7 @@ contract('PolyMathVesting', async function ([miner, owner, investor, wallet, pre
   beforeEach(async function () {
     startTime  = latestTime() + duration.seconds(1);
     endTime = startTime + duration.weeks(1);
-    tokenDeployed = await POLYToken.new(presale_wallet);
+    tokenDeployed = await POLYToken.new(presale_wallet); //deploy the POLY token
     polyVestingDeployed = await POLYVesting.new(tokenDeployed.address, endTime, owner);
     await tokenDeployed.transfer(polyVestingDeployed.address, 1000000000000000000);
   });
@@ -29,6 +29,9 @@ contract('PolyMathVesting', async function ([miner, owner, investor, wallet, pre
       'from': owner
     });
     assert.equal((await tokenDeployed.balanceOf.call(owner)).toNumber(), 1000000000000000000);
+    let currentPolyVestingContractBalance = await tokenDeployed.balanceOf(polyVestingDeployed.address);    
+    console.log(currentPolyVestingContractBalance);
+    //**** NEED TO CHEKC THIS, got it to console log, now what? */
   });
 
   it('tokens cannot be released before vesting date', async () => {

@@ -1,7 +1,7 @@
 pragma solidity ^0.4.13;
 
-import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
-import 'zeppelin-solidity/contracts/math/SafeMath.sol';
+import './ownership/Ownable.sol';
+import './math/SafeMath.sol';
 import './PolyMathToken.sol';
 
 /**
@@ -98,7 +98,7 @@ contract PolyMathTokenOffering is Ownable {
       bonusRate =  1200;
     } else if (currentTime <= DAY2) {
       bonusRate =  1100;
-    } else if (currentTime <= DAY3) {
+    } else if (currentTime <= DAY3) { //this line is not needed, can just return bonus rate. but doesnt make a difference
       bonusRate =  1000;
     }
     return bonusRate;
@@ -117,13 +117,13 @@ contract PolyMathTokenOffering is Ownable {
     }
    }
 
-   function ethToTokens(uint256 ethAmount) internal returns (uint256) {
+   function ethToTokens(uint256 ethAmount) internal returns (uint256) { //seems like wei is getting passed here, but dealing with eth, confusing, check out
     return ethAmount.mul(calculateBonusRate());
    }
 
   // low level token purchase function
   // caution: tokens must be redeemed by beneficiary address
-  function buyTokens(address beneficiary) payable {
+  function buyTokens(address beneficiary) payable { 
     require(whitelist[beneficiary]);
     require(beneficiary != 0x0);
     require(validPurchase());
@@ -145,7 +145,7 @@ contract PolyMathTokenOffering is Ownable {
       Refund(weiToReturn);
     }
     // send tokens to purchaser
-    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
+    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens); //it appears beneficiary and msg.sender are one in the same. but okay no big deal 
     token.issueTokens(beneficiary, tokens);
     TokenRedeem(beneficiary, tokens);
     checkFinalize();
