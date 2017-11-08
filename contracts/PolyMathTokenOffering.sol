@@ -69,8 +69,8 @@ contract PolyMathTokenOffering is Ownable {
     require(_startTime >= getBlockTimestamp());
     require(_endTime >= _startTime);
     require(_cap > 0);
-    require(_wallet != 0x0);
-    require(_token != 0x0);
+    require(_wallet != address(0));
+    require(_token != address(0));
 
     token = PolyMathToken(_token);
     startTime = _startTime;
@@ -90,7 +90,6 @@ contract PolyMathTokenOffering is Ownable {
   function calculateBonusRate() public constant returns (uint256) {
     uint256 DAY1 = startTime + 24 hours;
     uint256 DAY2 = DAY1 + 24 hours;
-    uint256 DAY3 = DAY2 + 24 hours;
     uint256 bonusRate = 1000;
 
     uint256 currentTime = getBlockTimestamp();
@@ -98,16 +97,15 @@ contract PolyMathTokenOffering is Ownable {
       bonusRate =  1200;
     } else if (currentTime <= DAY2) {
       bonusRate =  1100;
-    } else if (currentTime <= DAY3) { //this line is not needed, can just return bonus rate. but doesnt make a difference
-      bonusRate =  1000;
     }
+
     return bonusRate;
   }
 
   /// @notice interface for founders to whitelist investors
   /// @param _addresses array of investors
   /// @param _status enable or disable
-  function whitelistAddresses(address[] _addresses, bool _status) public onlyOwner {
+  function whitelistAddresses(address[] _addresses, bool _status) external onlyOwner {
     for (uint256 i = 0; i < _addresses.length; i++) {
         address investorAddress = _addresses[i];
         if (whitelist[investorAddress] == _status) {
@@ -117,7 +115,7 @@ contract PolyMathTokenOffering is Ownable {
     }
    }
 
-   function ethToTokens(uint256 ethAmount) internal returns (uint256) { //seems like wei is getting passed here, but dealing with eth, confusing, check out
+   function ethToTokens(uint256 ethAmount) internal constant returns (uint256) { //seems like wei is getting passed here, but dealing with eth, confusing, check out
     return ethAmount.mul(calculateBonusRate());
    }
 
@@ -125,7 +123,7 @@ contract PolyMathTokenOffering is Ownable {
   // caution: tokens must be redeemed by beneficiary address
   function buyTokens(address beneficiary) payable { 
     require(whitelist[beneficiary]);
-    require(beneficiary != 0x0);
+    require(beneficiary != address(0));
     require(validPurchase());
 
     uint256 weiAmount = msg.value;

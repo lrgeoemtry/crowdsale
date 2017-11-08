@@ -14,28 +14,30 @@ contract PolyMathToken is PausableToken, BurnableToken {
   // 1 billion POLY tokens in units divisible up to 18 decimals.
   uint256 public constant INITIAL_SUPPLY = 1000 * (10**6) * (10**uint256(decimals));
 
-  uint256 public constant PRESALE_SUPPLY =    150000000 * (10**uint256(decimals));
-  uint256 public constant PUBLICSALE_SUPPLY = 150000000 * (10**uint256(decimals));
-  uint256 public constant FOUNDER_SUPPLY =    150000000 * (10**uint256(decimals));
-  uint256 public constant BDMARKET_SUPPLY =   25000000 * (10**uint256(decimals));
-  uint256 public constant ADVISOR_SUPPLY =    25000000 * (10**uint256(decimals));
-  uint256 public constant RESERVE_SUPPLY =    500000000 * (10**uint256(decimals));
+  uint256 public constant PRESALE_SUPPLY    =  150000000 * (10**uint256(decimals));
+  uint256 public constant PUBLICSALE_SUPPLY =  150000000 * (10**uint256(decimals));
+  uint256 public constant FOUNDER_SUPPLY    =  150000000 * (10**uint256(decimals));
+  uint256 public constant BDMARKET_SUPPLY   =   25000000 * (10**uint256(decimals));
+  uint256 public constant ADVISOR_SUPPLY    =   25000000 * (10**uint256(decimals));
+  uint256 public constant RESERVE_SUPPLY    =  500000000 * (10**uint256(decimals));
 
   function PolyMathToken(address _presale_wallet) {
-    require(_presale_wallet != 0x0);
+    require(_presale_wallet != address(0));
     totalSupply = INITIAL_SUPPLY;
     balances[_presale_wallet] = PRESALE_SUPPLY;
     balances[msg.sender] = INITIAL_SUPPLY.sub(PRESALE_SUPPLY);
   }
 
-  function setOwner(address _owner) onlyOwner {
+  // This will be called to make PolyMathTokenOffering.sol the owner, then it can't be called again
+  function setOwner(address _owner) external onlyOwner {
     pause();
-    balances[owner] = INITIAL_SUPPLY.sub(PUBLICSALE_SUPPLY);// Confused here, by setting owner at a later date, can't i increase my funs back to 850 million?
+    balances[owner] = INITIAL_SUPPLY.sub(PUBLICSALE_SUPPLY);
     owner = _owner;
-    balances[owner] = PUBLICSALE_SUPPLY; //and then here we make it public sale? so we set it to 150 million?
+    balances[owner] = PUBLICSALE_SUPPLY;
   }
 
-  function issueTokens(address _to, uint256 _value) onlyOwner returns (bool) {
+  // Can only be called by PolyMathTokenOffering.sol (this contract's eventual owner)
+  function issueTokens(address _to, uint256 _value) external onlyOwner returns (bool) {
     balances[owner] = balances[owner].sub(_value);
     balances[_to] = balances[_to].add(_value);
     Transfer(owner, _to, _value);
