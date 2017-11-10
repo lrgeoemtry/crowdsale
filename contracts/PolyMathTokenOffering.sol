@@ -69,6 +69,7 @@ contract PolyMathTokenOffering is Ownable {
     require(_startTime >= getBlockTimestamp());
     require(_endTime >= _startTime);
     require(_cap > 0);
+    require(_cap < 1000000*(10**(18))); //Added for extra safety to avoid overflow 
     require(_wallet != address(0));
     require(_token != address(0));
 
@@ -121,6 +122,7 @@ contract PolyMathTokenOffering is Ownable {
 
   // low level token purchase function
   // caution: tokens must be redeemed by beneficiary address
+  //when called from fallback function, beneficiary will always == msg.sender
   function buyTokens(address beneficiary) payable { 
     require(whitelist[beneficiary]);
     require(beneficiary != address(0));
