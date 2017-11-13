@@ -145,7 +145,7 @@ contract PolyMathTokenOffering is Ownable {
       Refund(weiToReturn);
     }
     // send tokens to purchaser
-    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens); //it appears beneficiary and msg.sender are one in the same. but okay no big deal 
+    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens); 
     token.issueTokens(beneficiary, tokens);
     TokenRedeem(beneficiary, tokens);
     checkFinalize();

@@ -7,7 +7,7 @@ import { latestTime, duration } from './helpers/latestTime';
 
 const DECIMALS = 18;
 
-contract('TokenOfferingRefund', async function ([miner, owner, investor, wallet,  presale_wallet]) {
+contract('TokenOfferingRefund', async function ([miner, owner, investor, wallet, presale_wallet]) {
   let tokenOfferingDeployed;
   let tokenDeployed;
   let startTime;
@@ -20,92 +20,123 @@ contract('TokenOfferingRefund', async function ([miner, owner, investor, wallet,
     await tokenDeployed.setOwner(tokenOfferingDeployed.address);
   });
 
-    it('refund excess ETH if contribution is above cap (day 4)', async function () {
-      // set to DAY4 without bounus
-      await tokenOfferingDeployed.setBlockTimestamp(startTime + duration.days(4));
-      await tokenOfferingDeployed.whitelistAddresses([investor], true);
+  it('refund excess ETH if contribution is above cap (day 4)', async function () {
+    // set to DAY4 without bounus
+    await tokenOfferingDeployed.setBlockTimestamp(startTime + duration.days(4));
+    await tokenOfferingDeployed.whitelistAddresses([investor], true);
 
-      let investorStatus = await tokenOfferingDeployed.whitelist(investor);
-      assert.isTrue(investorStatus);
+    let investorStatus = await tokenOfferingDeployed.whitelist(investor);
+    assert.isTrue(investorStatus);
 
-      const value = web3.toWei(1.1, 'ether');
-      await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' });
+    const walletEthBalanceInitial = web3.eth.getBalance(wallet);    
 
-      let balance = await tokenDeployed.balanceOf(investor);
-      assert.equal(balance.toNumber(), 1000 * 10 ** DECIMALS);
-    });
+    const value = web3.toWei(1.1, 'ether');
+    await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' });
 
-    it('refund excess ETH if contribution is above cap (day 1)', async function () {
-      await tokenOfferingDeployed.setBlockTimestamp(startTime + 1);
-      await tokenOfferingDeployed.whitelistAddresses([investor], true);
+    let balance = await tokenDeployed.balanceOf(investor);
+    assert.equal(balance.toNumber(), 1000 * 10 ** DECIMALS);
 
-      let investorStatus = await tokenOfferingDeployed.whitelist(investor);
-      assert.isTrue(investorStatus);
+    const walletEthBalance = web3.eth.getBalance(wallet);
+    const walletEthIncrease = walletEthBalance.toNumber() - walletEthBalanceInitial.toNumber();
+    assert.equal(walletEthIncrease, 1 * 10 ** DECIMALS, 'eth balance increases by 1 from investor contribution');
 
-      const value = web3.toWei(3, 'ether');
-      await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' });
+  });
 
-      let balance = await tokenDeployed.balanceOf(investor);
-      assert.equal(balance.toNumber(), 1200 * 10 ** DECIMALS);
-    });
+  it('refund excess ETH if contribution is above cap (day 1)', async function () {
+    await tokenOfferingDeployed.setBlockTimestamp(startTime + 1);
+    await tokenOfferingDeployed.whitelistAddresses([investor], true);
 
-     it('refund excess ETH in multiple contributions if contributions are above cap (day 1)', async function () {
-      await tokenOfferingDeployed.setBlockTimestamp(startTime + 1);
-      await tokenOfferingDeployed.whitelistAddresses([investor], true);
+    let investorStatus = await tokenOfferingDeployed.whitelist(investor);
+    assert.isTrue(investorStatus);
 
-      let investorStatus = await tokenOfferingDeployed.whitelist(investor);
-      assert.isTrue(investorStatus);
+    const walletEthBalanceInitial = web3.eth.getBalance(wallet);    
+    
+    const value = web3.toWei(3, 'ether');
+    await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' });
 
-      let value = web3.toWei(0.99, 'ether');
-      await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' });
+    let balance = await tokenDeployed.balanceOf(investor);
+    assert.equal(balance.toNumber(), 1200 * 10 ** DECIMALS);
 
-      let balance = await tokenDeployed.balanceOf(investor);
-      assert.equal(balance.toNumber(), 1188 * 10 ** DECIMALS);
+    const walletEthBalance = web3.eth.getBalance(wallet);
+    const walletEthIncrease = walletEthBalance.toNumber() - walletEthBalanceInitial.toNumber();
+    assert.equal(walletEthIncrease, 1 * 10 ** DECIMALS, 'eth balance increases by 1 from investor contribution');
+  });
 
-      value = web3.toWei(1, 'ether');
-      await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' });
+  it('refund excess ETH in multiple contributions if contributions are above cap (day 1)', async function () {
+    await tokenOfferingDeployed.setBlockTimestamp(startTime + 1);
+    await tokenOfferingDeployed.whitelistAddresses([investor], true);
 
-      balance = await tokenDeployed.balanceOf(investor);
-      assert.equal(balance.toNumber(), 1200 * 10 ** DECIMALS);
-    });
+    let investorStatus = await tokenOfferingDeployed.whitelist(investor);
+    assert.isTrue(investorStatus);
 
-     it('refund excess ETH if cap has been exceeded (day 1)', async function () {
-      await tokenOfferingDeployed.setBlockTimestamp(startTime + 1);
-      await tokenOfferingDeployed.whitelistAddresses([investor], true);
+    const walletEthBalanceInitial = web3.eth.getBalance(wallet);    
+    
+    let value = web3.toWei(0.99, 'ether');
+    await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' });
 
-      let investorStatus = await tokenOfferingDeployed.whitelist(investor);
-      assert.isTrue(investorStatus);
+    let balance = await tokenDeployed.balanceOf(investor);
+    assert.equal(balance.toNumber(), 1188 * 10 ** DECIMALS);
 
-      let value = web3.toWei(1, 'ether');
-      await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' });
+    value = web3.toWei(1, 'ether');
+    await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' });
 
-      let balance = await tokenDeployed.balanceOf(investor);
-      assert.equal(balance.toNumber(), 1200 * 10 ** DECIMALS);
+    balance = await tokenDeployed.balanceOf(investor);
+    assert.equal(balance.toNumber(), 1200 * 10 ** DECIMALS);
 
-      value = web3.toWei(10, 'ether');
-      await assertFail(async () => { await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' })});
+    const walletEthBalance = web3.eth.getBalance(wallet);
+    const walletEthIncrease = walletEthBalance.toNumber() - walletEthBalanceInitial.toNumber();
+    assert.equal(walletEthIncrease, 1 * 10 ** DECIMALS, 'eth balance increases by 1 from investor contribution');
+  });
 
-      balance = await tokenDeployed.balanceOf(investor);
-      assert.equal(balance.toNumber(), 1200 * 10 ** DECIMALS);
-    });
+  it('refund excess ETH if cap has been exceeded (day 1)', async function () {
+    await tokenOfferingDeployed.setBlockTimestamp(startTime + 1);
+    await tokenOfferingDeployed.whitelistAddresses([investor], true);
 
-     it('refund excess ETH if cap has been exceeded (day 1)', async function () {
-      await tokenOfferingDeployed.setBlockTimestamp(startTime + 1);
-      await tokenOfferingDeployed.whitelistAddresses([investor], true);
+    let investorStatus = await tokenOfferingDeployed.whitelist(investor);
+    assert.isTrue(investorStatus);
 
-      let investorStatus = await tokenOfferingDeployed.whitelist(investor);
-      assert.isTrue(investorStatus);
+    const walletEthBalanceInitial = web3.eth.getBalance(wallet);    
+    
+    let value = web3.toWei(1, 'ether');
+    await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' });
 
-      let value = web3.toWei(1, 'ether');
-      await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' });
+    let balance = await tokenDeployed.balanceOf(investor);
+    assert.equal(balance.toNumber(), 1200 * 10 ** DECIMALS);
 
-      let balance = await tokenDeployed.balanceOf(investor);
-      assert.equal(balance.toNumber(), 1200 * 10 ** DECIMALS);
+    value = web3.toWei(10, 'ether');
+    await assertFail(async () => { await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' }) });
 
-      value = web3.toWei(10, 'ether');
-      await assertFail(async () => { await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' })});
+    balance = await tokenDeployed.balanceOf(investor);
+    assert.equal(balance.toNumber(), 1200 * 10 ** DECIMALS);
 
-      balance = await tokenDeployed.balanceOf(investor);
-      assert.equal(balance.toNumber(), 1200 * 10 ** DECIMALS);
-    });
+    const walletEthBalance = web3.eth.getBalance(wallet);
+    const walletEthIncrease = walletEthBalance.toNumber() - walletEthBalanceInitial.toNumber();
+    assert.equal(walletEthIncrease, 1 * 10 ** DECIMALS, 'eth balance increases by 1 from investor contribution');
+  });
+
+  it('refund excess ETH if cap has been exceeded (day 1)', async function () {
+    await tokenOfferingDeployed.setBlockTimestamp(startTime + 1);
+    await tokenOfferingDeployed.whitelistAddresses([investor], true);
+
+    let investorStatus = await tokenOfferingDeployed.whitelist(investor);
+    assert.isTrue(investorStatus);
+
+    const walletEthBalanceInitial = web3.eth.getBalance(wallet);    
+
+    let value = web3.toWei(1, 'ether');
+    await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' });
+
+    let balance = await tokenDeployed.balanceOf(investor);
+    assert.equal(balance.toNumber(), 1200 * 10 ** DECIMALS);
+
+    value = web3.toWei(10, 'ether');
+    await assertFail(async () => { await tokenOfferingDeployed.sendTransaction({ from: investor, value: value, gas: '200000' }) });
+
+    balance = await tokenDeployed.balanceOf(investor);
+    assert.equal(balance.toNumber(), 1200 * 10 ** DECIMALS);
+
+    const walletEthBalance = web3.eth.getBalance(wallet);
+    const walletEthIncrease = walletEthBalance.toNumber() - walletEthBalanceInitial.toNumber();
+    assert.equal(walletEthIncrease, 1 * 10 ** DECIMALS, 'eth balance increases by 1 from investor contribution');
+  });
 });
