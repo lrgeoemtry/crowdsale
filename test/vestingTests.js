@@ -29,9 +29,6 @@ contract('PolyMathVesting', async function ([miner, owner, investor, wallet, pre
       'from': owner
     });
     assert.equal((await tokenDeployed.balanceOf.call(owner)).toNumber(), 1000000000000000000);
-    let currentPolyVestingContractBalance = await tokenDeployed.balanceOf(polyVestingDeployed.address);    
-    console.log(currentPolyVestingContractBalance);
-    //**** NEED TO CHEKC THIS, got it to console log, now what? */
   });
 
   it('tokens cannot be released before vesting date', async () => {

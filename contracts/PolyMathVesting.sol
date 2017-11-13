@@ -34,7 +34,6 @@ contract PolyMathVesting {
 
     uint256 amount = token.balanceOf(this);
     require(amount > 0);
-    //should alos require amount >= however much poly this contract hold 
 
     require(token.transfer(msg.sender, entitled)); 
   }
@@ -43,28 +42,3 @@ contract PolyMathVesting {
      return block.timestamp;
    }
 }
-
-
-//Type of Vesting We Need
-  //Advisor - 1 time on August 23rd, 2018
-  //Founders - 6 month vesting , with 5% of Total for each founder
-  //Biz Dev - 1 year starting with 1/12 on day One (day one of the token being created)
-
-//Non Vesting
-  //Pre sale A B
-  //Public sale
-  //Reserve, bounty, 
-
-  /*
-what is the best way to build these out?
-
-I would say set up a pre sale contract with the 20 or so addresses that allows them to withdraw
-this way if someone sends us an incorrect address, we could potentially fix it .. if we made sure we could
-
-public sale is set up!
-
-then set up a reserve & bounty contract
-
-
-
-  */
