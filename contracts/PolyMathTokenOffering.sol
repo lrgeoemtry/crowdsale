@@ -116,7 +116,7 @@ contract PolyMathTokenOffering is Ownable {
     }
    }
 
-   function ethToTokens(uint256 ethAmount) internal constant returns (uint256) { //seems like wei is getting passed here, but dealing with eth, confusing, check out
+   function ethToTokens(uint256 ethAmount) internal constant returns (uint256) {
     return ethAmount.mul(calculateBonusRate());
    }
 
@@ -145,7 +145,7 @@ contract PolyMathTokenOffering is Ownable {
       Refund(weiToReturn);
     }
     // send tokens to purchaser
-    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens); 
+    TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
     token.issueTokens(beneficiary, tokens);
     TokenRedeem(beneficiary, tokens);
     checkFinalize();
