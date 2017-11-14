@@ -1,7 +1,7 @@
 pragma solidity ^0.4.13;
 
-import './token/PausableToken.sol';
-import './token/BurnableToken.sol';
+import 'zeppelin-solidity/contracts/token/PausableToken.sol';
+import 'zeppelin-solidity/contracts/token/BurnableToken.sol';
 
 contract PolyMathToken is PausableToken, BurnableToken {
 
@@ -29,7 +29,7 @@ contract PolyMathToken is PausableToken, BurnableToken {
   }
 
   // This will be called to make PolyMathTokenOffering.sol the owner, then it can't be called again
-  function setOwner(address _owner) external onlyOwner {
+  function setOwner(address _owner) public onlyOwner {
     pause();
     balances[owner] = INITIAL_SUPPLY.sub(PUBLICSALE_SUPPLY);
     owner = _owner;
@@ -37,7 +37,7 @@ contract PolyMathToken is PausableToken, BurnableToken {
   }
 
   // Can only be called by PolyMathTokenOffering.sol (this contract's eventual owner)
-  function issueTokens(address _to, uint256 _value) external onlyOwner returns (bool) {
+  function issueTokens(address _to, uint256 _value) public onlyOwner returns (bool) {
     balances[owner] = balances[owner].sub(_value);
     balances[_to] = balances[_to].add(_value);
     Transfer(owner, _to, _value);

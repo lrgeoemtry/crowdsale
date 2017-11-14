@@ -1,7 +1,7 @@
 pragma solidity ^0.4.13;
 
-import './ownership/Ownable.sol';
-import './math/SafeMath.sol';
+import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
+import 'zeppelin-solidity/contracts/math/SafeMath.sol';
 import './PolyMathToken.sol';
 
 /**
@@ -88,7 +88,7 @@ contract PolyMathTokenOffering is Ownable {
   // Day 1: 1 ETH = 1,200 POLY
   // Day 2: 1 ETH = 1,100 POLY
   // Day 3: 1 ETH = 1,000 POLY
-  function calculateBonusRate() internal constant returns (uint256) {
+  function calculateBonusRate() public constant returns (uint256) {
     uint256 DAY1 = startTime + 24 hours;
     uint256 DAY2 = DAY1 + 24 hours;
     uint256 bonusRate = 1000;
@@ -157,7 +157,7 @@ contract PolyMathTokenOffering is Ownable {
     wallet.transfer(amount);
   }
 
-  function checkFinalize() internal {
+  function checkFinalize() public {
     if (hasEnded()) {
       finalize();
     }
@@ -174,7 +174,7 @@ contract PolyMathTokenOffering is Ownable {
   }
 
   // @return true if crowdsale event has ended or cap reached
-  function hasEnded() internal constant returns (bool) {
+  function hasEnded() public constant returns (bool) {
     bool capReached = weiRaised >= cap;
     bool passedEndTime = getBlockTimestamp() > endTime;
     return passedEndTime || capReached;
